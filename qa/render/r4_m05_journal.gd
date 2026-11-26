@@ -121,4 +121,3 @@ static func restore_and_confirm(stage:Node2D,payload:Dictionary)->Dictionary:
     good=good and stage.placement_gate.get("items",[]).is_empty() and stage.placement_gate.get("events",[]).is_empty()
     return {"passed":good,"checkpoint_pad":payload["pad_index"],"native_floor_confirmed":good,
         "authorizes_gameplay_spawns":false,"reason":"native floor recheck" if good else "unsafe restored collision state"}
-
