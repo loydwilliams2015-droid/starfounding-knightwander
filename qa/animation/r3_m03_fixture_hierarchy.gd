@@ -18,6 +18,7 @@ var reduced_motion: bool = false
 var phase: float = 0.0
 var fixtures: Array[Dictionary] = []
 var levels: Array[float] = []
+var joint_angles: Array[float] = []
 var last_player_x: float = 0.0
 
 func bind_stage(target: Node2D) -> void:
@@ -48,8 +49,10 @@ func bind_stage(target: Node2D) -> void:
                 "platform_x":child.position.x,"platform_width":rectangle.size.x,"grounded":false,
                 "kind":"underside_support"})
     levels.resize(fixtures.size())
+    joint_angles.resize(fixtures.size())
     for k in range(levels.size()):
         levels[k] = 0.0
+        joint_angles[k] = 0.0
     queue_redraw()
 
 func set_biome(value: String) -> bool:
@@ -84,11 +87,15 @@ func _process(delta: float) -> void:
         return
     var a: Vector2=stage.demo.actor.global_position
     var busy: bool=actor_is_busy()
-    phase+=minf(delta,0.1)
+    var capped_delta: float=minf(delta,0.1)
+    phase+=capped_delta
     var blend: float = 1.0-exp(-ACTIVITY_RESPONSE * delta)
     for k in range(fixtures.size()):
         var target: float=predicted_activity(k,a,busy)
         levels[k]=lerpf(levels[k],target,blend)
+        if not reduced_motion:
+            # Integrate velocity, never multiply accumulated phase by a changing activity.
+            joint_angles[k]=fposmod(joint_angles[k]+capped_delta*INDUSTRIAL_RATE*levels[k],TAU)
     last_player_x=a.x
     queue_redraw()
 
@@ -101,7 +108,7 @@ func phase_displacement(index: int) -> float:
     match biome:
         "timber": return sin(phase*1.1)*TIMBER_SWAY*levels[index]
         "relicwright": return sin(phase*1.4)*RELIC_PULSE*levels[index]
-        "industrial": return phase * INDUSTRIAL_RATE * levels[index]
+        "industrial": return joint_angles[index]
     return 0.0
 
 func snapshot() -> Dictionary:
@@ -110,7 +117,7 @@ func snapshot() -> Dictionary:
     return {"biome":biome,"fixtures":fixtures.size(),"levels":values,
         "reduced_motion":reduced_motion,"fixture_kinds":fixtures.map(func(f): return f["kind"]),
         "collision_added":false,"spawn_authority":false,
-        "max_opacity":MAX_DECORATIVE_OPACITY,"industrial_rate":INDUSTRIAL_RATE}
+        "max_opacity":MAX_DECORATIVE_OPACITY,"industrial_rate":INDUSTRIAL_RATE,"joint_angles":joint_angles.duplicate()}
 
 func _draw() -> void:
     for k in range(fixtures.size()):
