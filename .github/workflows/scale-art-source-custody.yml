@@ -2,7 +2,7 @@ name: SCALE ART source custody
 on:
   push:
     paths:
-      - 'SK_SCALE_0_3_S33_patch.zip'
+      - 'qa/scale-art/archive/SK_SCALE_0_3_S33_patch.zip'
       - 'qa/scale-art/tools/r1_c03_verify_archive.py'
       - '.github/workflows/scale-art-source-custody.yml'
   workflow_dispatch:
@@ -11,6 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify S33 archive and all 168 source members
+      - name: Verify exact S33 archive and its 168 source members
         run: |
-          python3 qa/scale-art/tools/r1_c03_verify_archive.py SK_SCALE_0_3_S33_patch.zip
+          python3 qa/scale-art/tools/r1_c03_verify_archive.py qa/scale-art/archive/SK_SCALE_0_3_S33_patch.zip
