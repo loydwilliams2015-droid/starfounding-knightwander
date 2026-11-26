@@ -1,0 +1,3 @@
+# SCALE/ART QA-019 — Camera ownership after manual inspection
+
+Append-only acceptance amendment. The manual camera pixel-phase experiment must not leave automatic follow disabled when returning to gameplay. Restoring auto mode resets stale offsets, preserves actor position and collision geometry, and does not alter parallax ratios. Six round trips, at least one input-driven movement and crouch transition each. Preserve S27 manual offset and S29/S30 look-ahead tests. Primary reference: Mega Man X4 (precision); secondary: Dead Cells (atmosphere/animation continuity). Source artwork remains reference-only.
